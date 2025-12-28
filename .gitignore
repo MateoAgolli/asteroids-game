@@ -1,0 +1,22 @@
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+config.properties
+
+# Java
+*.class
+
+# Maven
+**/target/
+
+# JavaFX / runtime stuff
+*.jar
+*.exe
