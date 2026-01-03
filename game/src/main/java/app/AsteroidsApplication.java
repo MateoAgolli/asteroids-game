@@ -63,8 +63,8 @@ public class AsteroidsApplication extends Application {
     public void start(Stage window) {
         window.setTitle("Asteroids!");
 
-        asteroidChance = 0.02;
-        speedMultiplier = 1.3;
+        asteroidChance = 1.2;
+        speedMultiplier = 78;
         resizePercentage = 1.0;
 
         GridPane layout = new GridPane();
@@ -155,69 +155,80 @@ public class AsteroidsApplication extends Application {
         enableKeyListeners(scene, pressedKeys, canFire, canFireHugeLaserBeam, justFiredHugeLaserBeam, projectiles, laserBeams, pane, points);
 
         timer = new AnimationTimer() {
+            private long lastTime = 0;
+
             @Override
             public void handle(long now) {
+                if (lastTime == 0) {
+                    lastTime = now;
+                    return;
+                }
+
+                // deltaTime in seconds, needed for frame rate independence
+                double deltaTime = (now - lastTime) / 1_000_000_000.0;
+                lastTime = now;
+
                 if (pressedKeys.getOrDefault(KeyCode.LEFT, false) || pressedKeys.getOrDefault(KeyCode.A, false)) {
-                    ship.turnLeft();
+                    ship.turnLeft(deltaTime);
                 }
 
                 if (pressedKeys.getOrDefault(KeyCode.RIGHT, false) || pressedKeys.getOrDefault(KeyCode.D, false)) {
-                    ship.turnRight();
+                    ship.turnRight(deltaTime);
                 }
 
                 if (pressedKeys.getOrDefault(KeyCode.UP, false) || pressedKeys.getOrDefault(KeyCode.W, false)) {
-                    ship.accelerate();
+                    ship.accelerate(deltaTime);
                 }
 
                 if (points.get() == 500) {
-                    speedMultiplier = 1.8;
-                    asteroidChance = 0.025;
+                    speedMultiplier = 108.0;
+                    asteroidChance = 1.5;
                 } else if (points.get() == 1000) {
-                    speedMultiplier = 2.5;
-                    asteroidChance = 0.05;
+                    speedMultiplier = 150.0;
+                    asteroidChance = 3;
                 } else if (points.get() == 1500) {
-                    speedMultiplier = 3.0;
-                    asteroidChance = 0.07;
+                    speedMultiplier = 180.0;
+                    asteroidChance = 4.2;
                 } else if (points.get() == 2000) {
-                    speedMultiplier = 4.0;
-                    asteroidChance = 0.09;
+                    speedMultiplier = 240.0;
+                    asteroidChance = 5.4;
                 } else if (points.get() == 2500) {
-                    speedMultiplier = 5.0;
-                    asteroidChance = 0.11;
+                    speedMultiplier = 300.0;
+                    asteroidChance = 6.6;
                 } else if (points.get() == 3000) {
-                    speedMultiplier = 5.5;
-                    asteroidChance = 0.13;
+                    speedMultiplier = 330;
+                    asteroidChance = 7.8;
                 } else if (points.get() == 3500) {
-                    speedMultiplier = 6.0;
-                    asteroidChance = 0.15;
+                    speedMultiplier = 360.0;
+                    asteroidChance = 9.0;
                 } else if (points.get() == 4000) {
-                    speedMultiplier = 6.5;
-                    asteroidChance = 0.17;
+                    speedMultiplier = 390.0;
+                    asteroidChance = 10.2;
                 } else if (points.get() == 4500) {
-                    speedMultiplier = 7.0;
-                    asteroidChance = 0.19;
+                    speedMultiplier = 420.0;
+                    asteroidChance = 11.4;
                 } else if (points.get() == 5000) {
-                    speedMultiplier = 7.5;
-                    asteroidChance = 0.21;
+                    speedMultiplier = 450.0;
+                    asteroidChance = 12.6;
                 }
 
                 if (armors.size() < 3) {
-                    if ((Math.random() <= 0.000385 && newArmorCount == 0 && points.get() < 1000) || (newArmorCount == 0 && points.get() == 910)) { // 50% probability of happening at least once in 30 seconds
+                    if ((Math.random() <= 0.0231 * deltaTime && newArmorCount == 0 && points.get() < 1000) || (newArmorCount == 0 && points.get() == 910)) { // 50% probability of happening at least once in 30 seconds
                         newArmorCount++;
                         addMovingArmorToTheLayout(pane);
-                    } else if ((Math.random() <= 0.000385 && newArmorCount == 1 && points.get() >= 1000 && points.get() < 2000) || (newArmorCount == 1 && points.get() == 1930)) {
+                    } else if ((Math.random() <= 0.0231 * deltaTime && newArmorCount == 1 && points.get() >= 1000 && points.get() < 2000) || (newArmorCount == 1 && points.get() == 1930)) {
                         newArmorCount++;
                         addMovingArmorToTheLayout(pane);
-                    } else if ((Math.random() <= 0.000385 && newArmorCount == 2 && points.get() >= 2000 && points.get() < 3000) || (newArmorCount == 2 && points.get() == 2950)) {
+                    } else if ((Math.random() <= 0.0231 * deltaTime && newArmorCount == 2 && points.get() >= 2000 && points.get() < 3000) || (newArmorCount == 2 && points.get() == 2950)) {
                         newArmorCount++;
                         addMovingArmorToTheLayout(pane);
-                    } else if ((Math.random() <= 0.000385 && newArmorCount == 3 && points.get() >= 3000 && points.get() < 4000) || (newArmorCount == 3 && points.get() == 3880)) {
+                    } else if ((Math.random() <= 0.0231 * deltaTime && newArmorCount == 3 && points.get() >= 3000 && points.get() < 4000) || (newArmorCount == 3 && points.get() == 3880)) {
                         newArmorCount++;
                         addMovingArmorToTheLayout(pane);
-                    } else if ((Math.random() <= 0.000385 && newArmorCount == 4 && points.get() >= 4000 && points.get() < 5000) || (newArmorCount == 4 && points.get() == 4930)) {
+                    } else if ((Math.random() <= 0.0231 * deltaTime && newArmorCount == 4 && points.get() >= 4000 && points.get() < 5000) || (newArmorCount == 4 && points.get() == 4930)) {
                         newArmorCount++;
                         addMovingArmorToTheLayout(pane);
-                    } else if (Math.random() <= 0.0002 && points.get() >= 5000) { // 51.33% probability of happening at least once in 1 minute
+                    } else if (Math.random() <= 0.012 * deltaTime && points.get() >= 5000) { // 51.33% probability of happening at least once in 1 minute
                         newArmorCount++;
                         addMovingArmorToTheLayout(pane);
                     }
@@ -235,7 +246,7 @@ public class AsteroidsApplication extends Application {
                 }
 
                 if (movingArmor != null) {
-                    movingArmor.move();
+                    movingArmor.move(deltaTime);
 
                     if (ship.collide(movingArmor) && movingArmor.isAlive()) { // We check if movingArmor isAlive so the instruction inside this if condition get executed only once for every collision
                         playSound("armor_pickup.mp3");
@@ -248,28 +259,28 @@ public class AsteroidsApplication extends Application {
                     }
                 }
 
-                if ((Math.random() <= 0.000385 && powerUpCount == 0 && points.get() < 1000) || (powerUpCount == 0 && points.get() == 960)) { // 50% probability of happening at least once in 30 seconds
+                if ((Math.random() <= 0.0231 * deltaTime && powerUpCount == 0 && points.get() < 1000) || (powerUpCount == 0 && points.get() == 960)) { // 50% probability of happening at least once in 30 seconds
                     powerUpCount++;
                     addPowerUpToTheLayout(pane);
-                } else if ((Math.random() <= 0.000385 && powerUpCount == 1 && points.get() >= 1000 && points.get() < 2000) || (powerUpCount == 1 && points.get() == 1970)) {
+                } else if ((Math.random() <= 0.0231 * deltaTime && powerUpCount == 1 && points.get() >= 1000 && points.get() < 2000) || (powerUpCount == 1 && points.get() == 1970)) {
                     powerUpCount++;
                     addPowerUpToTheLayout(pane);
-                } else if ((Math.random() <= 0.000385 && powerUpCount == 2 && points.get() >= 2000 && points.get() < 3000) || (powerUpCount == 2 && points.get() == 2900)) {
+                } else if ((Math.random() <= 0.0231 * deltaTime && powerUpCount == 2 && points.get() >= 2000 && points.get() < 3000) || (powerUpCount == 2 && points.get() == 2900)) {
                     powerUpCount++;
                     addPowerUpToTheLayout(pane);
-                } else if ((Math.random() <= 0.000385 && powerUpCount == 3 && points.get() >= 3000 && points.get() < 4000) || (powerUpCount == 3 && points.get() == 3780)) {
+                } else if ((Math.random() <= 0.0231 * deltaTime && powerUpCount == 3 && points.get() >= 3000 && points.get() < 4000) || (powerUpCount == 3 && points.get() == 3780)) {
                     powerUpCount++;
                     addPowerUpToTheLayout(pane);
-                } else if ((Math.random() <= 0.000385 && powerUpCount == 4 && points.get() >= 4000 && points.get() < 5000) || (powerUpCount == 4 && points.get() == 4800)) {
+                } else if ((Math.random() <= 0.0231 * deltaTime && powerUpCount == 4 && points.get() >= 4000 && points.get() < 5000) || (powerUpCount == 4 && points.get() == 4800)) {
                     powerUpCount++;
                     addPowerUpToTheLayout(pane);
-                } else if (Math.random() <= 0.0002 && points.get() >= 5000) { // 51.33% probability of happening at least once in 1 minute
+                } else if (Math.random() <= 0.012 * deltaTime && points.get() >= 5000) { // 51.33% probability of happening at least once in 1 minute
                     powerUpCount++;
                     addPowerUpToTheLayout(pane);
                 }
 
                 if (powerUp != null) {
-                    powerUp.move();
+                    powerUp.move(deltaTime);
 
                     if (ship.collide(powerUp) && powerUp.isAlive()) {
                         playSound("power_up.mp3");
@@ -282,14 +293,14 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Move the ship, asteroids, and projectiles
-                ship.moveShip();
+                ship.moveShip(deltaTime);
                 asteroids.forEach(asteroid -> {
                     asteroid.moveFaster(speedMultiplier);
-                    asteroid.move();
+                    asteroid.move(deltaTime);
 
                 });
-                projectiles.forEach(projectile -> projectile.move());
-                laserBeams.forEach(laserBeam -> laserBeam.move());
+                projectiles.forEach(projectile -> projectile.move(deltaTime));
+                laserBeams.forEach(laserBeam -> laserBeam.move(deltaTime));
 
 
                 // Handle collisions
@@ -388,7 +399,7 @@ public class AsteroidsApplication extends Application {
                     }
                 });
 
-                if (Math.random() < asteroidChance) {
+                if (Math.random() < asteroidChance * deltaTime) {
                     Asteroid asteroid = new Asteroid(WIDTH, HEIGHT);
                     if (!asteroid.collide(ship)) {
                         asteroids.add(asteroid);
@@ -413,7 +424,7 @@ public class AsteroidsApplication extends Application {
         Projectile projectile = new Projectile((int) ship.getCharacter().getTranslateX(), (int) ship.getCharacter().getTranslateY());
         projectile.getCharacter().setRotate(ship.getCharacter().getRotate());
         projectiles.add(projectile);
-        projectile.accelerate();
+        projectile.accelerate(0.25);
         projectile.setMovement(projectile.getMovement().normalize().multiply(3));
         pane.getChildren().add(projectile.getCharacter());
         playSound("fire.wav");
@@ -493,8 +504,8 @@ public class AsteroidsApplication extends Application {
         powerUpCount = 0;
         newArmorCount = 0;
         createNewArmor(armors, 3, 0);
-        asteroidChance = 0.02;
-        speedMultiplier = 1.3;
+        asteroidChance = 1.2;
+        speedMultiplier = 78;
 
         pane.setPrefSize(WIDTH, HEIGHT);
         pane.getChildren().clear();
@@ -644,7 +655,7 @@ public class AsteroidsApplication extends Application {
         laserBeam.getCharacter().setRotate(rotation); // Set the rotation to match the first laser
 
         laserBeams.add(laserBeam);
-        laserBeam.accelerate();
+        laserBeam.accelerate(0.25);
         laserBeam.setMovement(laserBeam.getMovement().normalize().multiply(3));
         pane.getChildren().add(laserBeam.getCharacter());
     }

@@ -13,17 +13,15 @@ public class Asteroid extends Character {
 
         getCharacter().setRotate(rnd.nextInt(360));
 
-        int accelerationAmount = 1 + rnd.nextInt(10);
-        for (int i = 0; i < accelerationAmount; i++) {
-            accelerate();
-        }
+        double initialAccelerationTime = (1 + rnd.nextInt(10)) / 60.0;
+        accelerate(initialAccelerationTime);
 
-        this.rotationalMovement = 0.5 - rnd.nextDouble();
+        this.rotationalMovement = (0.5 - rnd.nextDouble()) * 60;
     }
 
     @Override
-    public void move() {
-        super.move();
+    public void move(double deltaTime) {
+        super.move(deltaTime);
         if (getCharacter().getTranslateX() < 0) {
             getCharacter().setTranslateX(getCharacter().getTranslateX() + AsteroidsApplication.WIDTH);
         }
@@ -39,7 +37,7 @@ public class Asteroid extends Character {
         if (getCharacter().getTranslateY() > AsteroidsApplication.HEIGHT) {
             getCharacter().setTranslateY(getCharacter().getTranslateY() % AsteroidsApplication.HEIGHT);
         }
-        getCharacter().setRotate(getCharacter().getRotate() + rotationalMovement);
+        getCharacter().setRotate(getCharacter().getRotate() + rotationalMovement * deltaTime);
     }
 
     public static void setSize(double newSize) {

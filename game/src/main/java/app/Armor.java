@@ -34,17 +34,15 @@ public class Armor extends Ship {
         getCharacter().setScaleY(0.6);
         super.getCharacter().setRotate(270);
 
-        for (int i = 0; i < 15; i++) {
-            accelerate();
-        }
+        accelerate(0.25);
 
         double speedFactor = AsteroidsApplication.WIDTH / 600.0;
         setSpeedBasedOnWindowSize(speedFactor);
     }
 
     @Override
-    public void move() {
-        getCharacter().setTranslateY(getCharacter().getTranslateY() - getMovement().getY() * getSpeed());
+    public void move(double deltaTime) {
+        getCharacter().setTranslateY(getCharacter().getTranslateY() - getMovement().getY() * getSpeed() * deltaTime);
     }
 
     public static void setSize(double newSize) {

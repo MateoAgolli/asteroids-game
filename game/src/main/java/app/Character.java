@@ -19,7 +19,7 @@ public abstract class Character {
         this.movement = new Point2D(0, 0);
 
         this.alive = true;
-        this.speed = 1.3;
+        this.speed = 78;
     }
 
     public Polygon getCharacter() {
@@ -34,18 +34,18 @@ public abstract class Character {
         this.movement = newMovement;
     }
 
-    public void turnLeft() {
-        this.character.setRotate(this.character.getRotate() - 5);
+    public void turnLeft(double deltaTime) {
+        this.character.setRotate(this.character.getRotate() - 300 * deltaTime);
     }
 
-    public void turnRight() {
-        this.character.setRotate(this.character.getRotate() + 5);
+    public void turnRight(double deltaTime) {
+        this.character.setRotate(this.character.getRotate() + 300 * deltaTime);
     }
 
-    public void moveShip() {
+    public void moveShip(double deltaTime) {
         // Calculate the new position based on current movement vector
-        double newX = this.character.getTranslateX() + this.movement.getX() * this.speed;
-        double newY = this.character.getTranslateY() + this.movement.getY() * this.speed;
+        double newX = this.character.getTranslateX() + this.movement.getX() * this.speed * deltaTime;
+        double newY = this.character.getTranslateY() + this.movement.getY() * this.speed * deltaTime;
 
         // Get the bounds of the ship in the parent container (Pane)
         double shipWidth = this.character.getBoundsInParent().getWidth();
@@ -74,20 +74,17 @@ public abstract class Character {
         }
 
         // Apply damping to slow down the movement near boundaries
-        this.movement = this.movement.multiply(0.99); // Apply friction to slow down over time
+        this.movement = this.movement.multiply(Math.pow(0.55, deltaTime)); // Apply friction to slow down over time
     }
 
-    public void move() {
-        this.character.setTranslateX(this.character.getTranslateX() + this.movement.getX() * this.speed);
-        this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY() * this.speed);
+    public void move(double deltaTime) {
+        this.character.setTranslateX(this.character.getTranslateX() + this.movement.getX() * this.speed * deltaTime);
+        this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY() * this.speed * deltaTime);
     }
 
-    public void accelerate() {
-        double changeX = Math.cos(Math.toRadians(this.character.getRotate()));
-        double changeY = Math.sin(Math.toRadians(this.character.getRotate()));
-
-        changeX *= 0.05;
-        changeY *= 0.05;
+    public void accelerate(double deltaTime) {
+        double changeX = Math.cos(Math.toRadians(this.character.getRotate())) * 3 * deltaTime;
+        double changeY = Math.sin(Math.toRadians(this.character.getRotate())) * 3 * deltaTime;
 
         this.movement = this.movement.add(changeX, changeY);
     }
