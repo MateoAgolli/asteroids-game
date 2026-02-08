@@ -7,7 +7,10 @@ A classic Asteroids-inspired game built with JavaFX. The game involves controlli
 - Lives are represented as "armors" that can be lost when colliding with asteroids.
 - Armors can be picked up when they spawn, providing extra protection.
 - Power-up in the form of a huge laser blast that destroys asteroids.
-- Scoring system to track progress.
+- Online leaderboard showing the top 100 best players.
+- User registration and login system to persist scores across sessions.
+- Scores are saved per user, with only the best score counted on the leaderboard.
+- Guest play supported (guest scores are not saved to the leaderboard).
 - Sound effects to enhance the gaming experience.
 
 ## Installation
@@ -36,3 +39,7 @@ Download the "Asteroids_Setup.exe" file from the [Releases](https://github.com/M
 ![Screenshot5](game/screenshots/Asteroids5.png)
 ![Screenshot6](game/screenshots/Asteroids6.png)
 ![Screenshot7](game/screenshots/Asteroids7.png)
+![Screenshot8](game/screenshots/Asteroids8.png)
+![Screenshot9](game/screenshots/Asteroids9.png)
+![Screenshot10](game/screenshots/Asteroids10.png)
+![Screenshot11](game/screenshots/Asteroids11.png)
