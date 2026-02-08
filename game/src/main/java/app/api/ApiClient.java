@@ -14,25 +14,56 @@ public class ApiClient {
         client = HttpClient.newHttpClient();
     }
 
-    // Submit a new score
-    public String submitScore(int score) throws Exception {
-        String json = "{\"score\":" + score + "}";
+    // User Authentication
+    public HttpResponse<String> register(String username, String password) throws Exception {
+        String json = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/auth/register"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public String login(String username, String password) throws Exception {
+        String json = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/auth/login"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return response.body();
+    }
+
+    // Scores
+    public String submitScore(int score, Long userId) throws Exception {
+        String json = "{\"score\":" + score + ",\"userId\":" + (userId != null ? userId : "null") + "}";
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/scores"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
+
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
         return response.body();
     }
 
-    // Get top 10 scores
     public String getTopScores() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/scores/top"))
+                .uri(URI.create(BASE_URL + "/scores/leaderboard"))
                 .GET()
                 .build();
+
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
         return response.body();
     }
 }

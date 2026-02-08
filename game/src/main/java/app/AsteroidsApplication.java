@@ -1,6 +1,7 @@
 package app;
 
 import app.api.ApiDatabaseManager;
+import app.session.SessionManager;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -8,20 +9,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -456,7 +447,7 @@ public class AsteroidsApplication extends Application {
         Button playAgain = new Button("Play Again");
         styleButton(playAgain);
 
-        Button highScoresButton = new Button("High Scores");
+        Button highScoresButton = new Button("Leaderboard");
         styleButton(highScoresButton);
 
         Button exit = new Button("Exit");
@@ -664,7 +655,7 @@ public class AsteroidsApplication extends Application {
         VBox layout = new VBox();
         layout.setPrefSize(WIDTH, HEIGHT);
         layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20, 20, 20, 20));
+        layout.setPadding(new Insets(20));
         layout.setSpacing(40);
 
         window.heightProperty().addListener((obs, oldHeight, newHeight) -> {
@@ -697,22 +688,39 @@ public class AsteroidsApplication extends Application {
         Button howToPlayButton = new Button("How to Play");
         styleButton(howToPlayButton);
 
-        Button highScoresButton = new Button("High Scores");
+        Button highScoresButton = new Button("Leaderboard");
         styleButton(highScoresButton);
+
+        Button loginButton = new Button("Login");
+        styleButton(loginButton);
+
+        Button logoutButton = new Button("Logout");
+        styleButton(logoutButton);
+
+        Button registerButton = new Button("Register");
+        styleButton(registerButton);
 
         buttonsLayout.setAlignment(Pos.CENTER);
         buttonsLayout.setSpacing(20);
 
-        buttonsLayout.getChildren().addAll(howToPlayButton, highScoresButton);
+        buttonsLayout.getChildren().addAll(howToPlayButton, highScoresButton, loginButton, registerButton);
 
         Label finalSentence = new Label("Can you survive the asteroid storm and set a high score?");
         finalSentence.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         finalSentence.setTextFill(Color.WHITE);
 
-        Button startGame = new Button("Start Game");
+        Button startGame = new Button("Play as Guest");
         styleButton(startGame);
 
         layout.getChildren().addAll(welcomeLabel, text, buttonsLayout, finalSentence, startGame);
+
+        if (SessionManager.isLoggedIn()) {
+            startGame.setText("Start Game");
+            buttonsLayout.getChildren().removeAll(loginButton, registerButton);
+            buttonsLayout.getChildren().add(logoutButton);
+        } else {
+            startGame.setText("Play as Guest");
+        }
 
         Scene welcomeScene = new Scene(layout, Color.BLACK);
 
@@ -727,7 +735,7 @@ public class AsteroidsApplication extends Application {
             isManualResize = false;
             BorderPane howToPlayLayout = new BorderPane();
             howToPlayLayout.setPrefSize(WIDTH, HEIGHT);
-            howToPlayLayout.setPadding(new Insets(20, 20, 20, 20));
+            howToPlayLayout.setPadding(new Insets(20));
 
             BackgroundImage bg = createBackground();
             howToPlayLayout.setBackground(new Background(bg));
@@ -773,47 +781,210 @@ public class AsteroidsApplication extends Application {
             });
         });
 
-        highScoresButton.setOnAction(event -> {
+        loginButton.setOnAction(event -> showLoginPopup(window, welcomeScene, startGame, buttonsLayout, loginButton, logoutButton, registerButton));
+
+        logoutButton.setOnAction(event -> {
             isManualResize = false;
+            SessionManager.clear();
+            startGame.setText("Play as Guest");
+            buttonsLayout.getChildren().addAll(loginButton, registerButton);
+            buttonsLayout.getChildren().remove(logoutButton);
+        });
 
+        registerButton.setOnAction(e -> showRegisterPopup(window, welcomeScene, startGame, buttonsLayout, loginButton, logoutButton, registerButton));
+
+        highScoresButton.setOnAction(e -> {
+            isManualResize = false;
             BorderPane highScoresLayout = highScoresLayout(window, welcomeScene);
-
-            Scene highScoreScene = new Scene(highScoresLayout, Color.BLACK);
-            window.setScene(highScoreScene);
+            window.setScene(new Scene(highScoresLayout, Color.BLACK));
         });
 
         window.setScene(welcomeScene);
     }
 
+    private void showLoginPopup(Stage window, Scene previousScene, Button startGame, HBox buttonsLayout, Button loginButton, Button logoutButton, Button registerButton) {
+        showAuthPopup(window, previousScene, startGame, buttonsLayout, loginButton, logoutButton, registerButton, true);
+    }
+
+    private void showRegisterPopup(Stage window, Scene previousScene, Button startGame, HBox buttonsLayout, Button loginButton, Button logoutButton, Button registerButton) {
+        showAuthPopup(window, previousScene, startGame, buttonsLayout, loginButton, logoutButton, registerButton, false);
+    }
+
+    private void showAuthPopup(Stage window, Scene previousScene, Button startGame, HBox buttonsLayout, Button loginButton, Button logoutButton, Button registerButton, boolean isLogin) {
+        isManualResize = false;
+
+        BorderPane authLayout = new BorderPane();
+        authLayout.setPrefSize(WIDTH, HEIGHT);
+        authLayout.setPadding(new Insets(20));
+
+        VBox layout = new VBox();
+        layout.setSpacing(20);
+        layout.setAlignment(Pos.CENTER);
+
+        String actionText = isLogin ? "Login" : "Register";
+
+        Label title = new Label(actionText);
+        title.setTextFill(Color.WHITE);
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 25));
+
+        Label usernameLabel = new Label("Username");
+        usernameLabel.setTextFill(Color.WHITE);
+        usernameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+
+        TextField usernameField = new TextField();
+        usernameField.setPrefWidth(260);
+        usernameField.setMaxWidth(260);
+
+        Label passwordLabel = new Label("Password");
+        passwordLabel.setTextFill(Color.WHITE);
+        passwordLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPrefWidth(260);
+        passwordField.setMaxWidth(260);
+
+        Label message = new Label("");
+        message.setTextFill(Color.RED);
+        message.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+
+        Button submit = new Button(actionText);
+        styleButton(submit);
+
+        Button x = new Button("x");
+        styleButton(x);
+
+        layout.getChildren().addAll(title, usernameLabel, usernameField, passwordLabel, passwordField, submit, message);
+        layout.setPadding(new Insets(20));
+
+        authLayout.setCenter(layout);
+        authLayout.setRight(x);
+
+        BackgroundImage bg = createBackground();
+        authLayout.setBackground(new Background(bg));
+
+        Scene authScene = new Scene(authLayout, WIDTH, HEIGHT, Color.BLACK);
+        window.setScene(authScene);
+
+        submit.setOnAction(e -> {
+            String username = usernameField.getText().trim();
+            String password = passwordField.getText().trim();
+
+            boolean success;
+            String successMessage;
+            String failureMessage;
+            double pauseDuration;
+
+            if (isLogin) {
+                success = ApiDatabaseManager.login(username, password);
+                successMessage = "Login successful! Playing as " + username;
+                failureMessage = "\t\t\t\t       Login failed\nCheck your username, password, or internet connection.";
+                pauseDuration = 1.0;
+            } else {
+                success = ApiDatabaseManager.register(username, password);
+                if (success) {
+                    ApiDatabaseManager.login(username, password);
+                }
+                successMessage = "Registration successful! You are now logged in as " + username;
+                failureMessage = "\t\t\t\t    Registration failed\nUsername may be taken or check your internet connection.";
+                pauseDuration = 1.5;
+            }
+
+            if (success) {
+                message.setTextFill(Color.GREEN);
+                message.setText(successMessage);
+
+                PauseTransition pt = new PauseTransition(Duration.seconds(pauseDuration));
+                pt.setOnFinished(ev -> {
+                    window.setScene(previousScene);
+                    startGame.setText("Start Game");
+                    buttonsLayout.getChildren().removeAll(loginButton, registerButton);
+                    buttonsLayout.getChildren().add(logoutButton);
+                });
+                pt.play();
+            } else {
+                message.setTextFill(Color.RED);
+                message.setText(failureMessage);
+            }
+        });
+
+        x.setOnAction(e -> {
+            isManualResize = false;
+            window.setScene(previousScene);
+            isManualResize = true;
+        });
+    }
+
+
     private BorderPane highScoresLayout(Stage window, Scene previousScene) {
+        String currentUsername = SessionManager.getUsername();
+
         BorderPane highScoresLayout = new BorderPane();
         highScoresLayout.setPrefSize(WIDTH, HEIGHT);
-        highScoresLayout.setPadding(new Insets(20, 20, 20, 20));
+        highScoresLayout.setPadding(new Insets(20));
 
         BackgroundImage bg = createBackground();
         highScoresLayout.setBackground(new Background(bg));
 
-        Label highScoresLabel = new Label("Top 10 High Scores");
-
-        Label highScores = new Label("");
-        ArrayList<String> highScoresArrayList = ApiDatabaseManager.getTopHighScores();
-        for (String score : highScoresArrayList) {
-            highScores.setText(highScores.getText() + score + "\n");
-        }
-
+        Label highScoresLabel = new Label("Top 100 Best Players");
         highScoresLabel.setFont(Font.font("Arial", FontWeight.BOLD, 25));
         highScoresLabel.setTextFill(Color.WHITE);
+        BorderPane.setAlignment(highScoresLabel, Pos.CENTER);
 
-        highScores.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        highScores.setTextFill(Color.WHITE);
+        VBox scoresBox = new VBox(10);
+        scoresBox.setAlignment(Pos.TOP_LEFT);
+        scoresBox.setPadding(new Insets(20, 0, 0, 70));
+
+        ArrayList<String> highScoresArrayList = ApiDatabaseManager.getTopHighScores();
+        String currentUserScore = null;
+
+        for (int i = 0; i < highScoresArrayList.size(); i++) {
+            String scoreText = highScoresArrayList.get(i);
+            Label scoreLabel = new Label(scoreText);
+            scoreLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+
+            // Highlight the current user
+            if (currentUsername != null && scoreText.contains(currentUsername)) {
+                currentUserScore = scoreText;
+                scoreLabel.setTextFill(Color.GOLD);
+                scoreLabel.setStyle("-fx-background-color: rgba(255,255,0,0.2); -fx-padding: 2px;");
+            } else {
+                scoreLabel.setTextFill(Color.WHITE);
+            }
+            scoresBox.getChildren().add(scoreLabel);
+        }
+
+        HBox centerWrapper = new HBox(scoresBox);
+        centerWrapper.setAlignment(Pos.TOP_CENTER);
+
+        ScrollPane scrollPane = new ScrollPane(centerWrapper);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        VBox.setMargin(scrollPane, new Insets(0, 15, 0, 0));
+
+        styleScrollBar(scrollPane, highScoresLayout);
+
+        VBox centerContainer = new VBox();
+        centerContainer.getChildren().add(scrollPane);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        // Create fixed position label for current user
+        if (currentUserScore != null) {
+            Label fixedUserScore = new Label(currentUserScore);
+            fixedUserScore.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+            fixedUserScore.setTextFill(Color.GOLD);
+            fixedUserScore.setStyle("-fx-background-color: rgba(0,0,0,0.7); -fx-padding: 10px; -fx-border-color: gold; -fx-border-width: 2px;");
+            fixedUserScore.setMaxWidth(Double.MAX_VALUE);
+            fixedUserScore.setAlignment(Pos.CENTER);
+            centerContainer.getChildren().add(fixedUserScore);
+        }
 
         highScoresLayout.setTop(highScoresLabel);
-        highScoresLayout.setCenter(highScores);
+        highScoresLayout.setCenter(centerContainer);
 
         Button x = new Button("x");
         styleButton(x);
         highScoresLayout.setRight(x);
-
         x.setOnAction(event2 -> {
             isManualResize = false;
             window.setScene(previousScene);
@@ -821,5 +992,39 @@ public class AsteroidsApplication extends Application {
         });
 
         return highScoresLayout;
+    }
+
+    private void styleScrollBar(ScrollPane scrollPane, BorderPane highScoresLayout) {
+        String scrollBarCSS =
+                ".modern-scrollpane { -fx-background-color: transparent; }" +
+                        ".modern-scrollpane .viewport { -fx-background-color: transparent; }" +
+                        ".modern-scrollpane .scroll-bar:vertical { " +
+                        "    -fx-background-color: transparent; " +
+                        "    -fx-pref-width: 10px; " +
+                        "} " +
+                        ".modern-scrollpane .scroll-bar:vertical .track { " +
+                        "    -fx-background-color: transparent; " +
+                        "    -fx-border-color: transparent; " +
+                        "} " +
+                        ".modern-scrollpane .scroll-bar:vertical .thumb { " +
+                        "    -fx-background-color: rgba(255, 255, 255, 0.2); " +
+                        "    -fx-background-radius: 5px; " +
+                        "} " +
+                        ".modern-scrollpane .scroll-bar:vertical .thumb:hover { " +
+                        "    -fx-background-color: rgba(255, 255, 255, 0.4); " +
+                        "} " +
+                        ".modern-scrollpane .scroll-bar:vertical .thumb:pressed { " +
+                        "    -fx-background-color: rgba(255, 255, 255, 0.6); " +
+                        "} " +
+                        ".modern-scrollpane .scroll-bar:vertical .increment-button, " +
+                        ".modern-scrollpane .scroll-bar:vertical .decrement-button { " +
+                        "    -fx-background-color: transparent; " +
+                        "    -fx-background-radius: 0; " +
+                        "    -fx-padding: 0; " +
+                        "    -fx-pref-height: 0; " +
+                        "}";
+
+        scrollPane.getStyleClass().add("modern-scrollpane");
+        highScoresLayout.getStylesheets().add("data:text/css," + scrollBarCSS);
     }
 }
